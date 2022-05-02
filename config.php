@@ -18,9 +18,9 @@
 // core PHP method
 session_start();
 $conn = mysqli_connect("localhost", "root", "", "properties");
-if($conn){
-  echo "yes";
-}else{
-  echo "no";
-}
+// if($conn){
+//   echo "yes";
+// }else{
+//   echo "no";
+// }
 // ?>

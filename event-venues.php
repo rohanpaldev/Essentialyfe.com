@@ -77,11 +77,7 @@ $Price  = $_POST['Price'];
     <!-- Card Deck -->
     <div class="card-deck-container">
       <div class="card-deck">
-
-
-
         <?php
-
         if (isset($search)) {
 
           $query ="

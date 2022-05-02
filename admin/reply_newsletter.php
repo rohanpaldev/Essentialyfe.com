@@ -1,25 +1,18 @@
-<?php error_reporting(E_ALL ^ E_NOTICE); ?>
 <?php
+require('./config.php');
+require('./newsletter_mail.php');
 
-include('../config.php');
-//delete subscribed email
-if(isset($_GET['del'])){
-    $id= $_GET['del'];
-    $sql = "DELETE FROM `newsletter` WHERE `id`=$id";
-    $result= mysqli_query($conn, $sql);
-    // if ($result) {
-    //     echo "Your row has been deleted";
-
-
-    // }else{
-    //     echo "Row is not deleted yet";
-    // }
+if (isset($_GET['reply'])) {
+    $id = $_GET['reply'];
+    $query = "SELECT * FROM `newsletter` WHERE `id`='$id'";
+    $result = mysqli_query($conn, $query);
+    $row = $result->fetch_assoc();
 }
 ?>
-
 <!doctype html>
-<!-- <img src="../images/properties/" alt=""> -->
 <html lang="en">
+
+
 <head>
     <!-- Required meta tags -->
     <meta charset="utf-8">
@@ -32,10 +25,10 @@ if(isset($_GET['del'])){
     <link href="assets/plugins/perfect-scrollbar/css/perfect-scrollbar.css" rel="stylesheet" />
     <link href="assets/plugins/metismenu/css/metisMenu.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+
     <!-- loader-->
     <link href="assets/css/pace.min.css" rel="stylesheet" />
     <script src="assets/js/pace.min.js"></script>
-    
     <!-- Bootstrap CSS -->
     <link href="assets/css/bootstrap.min.css" rel="stylesheet">
     <link href="assets/css/bootstrap-extended.css" rel="stylesheet">
@@ -43,19 +36,46 @@ if(isset($_GET['del'])){
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&amp;display=swap" rel="stylesheet">
     <link href="assets/css/app.css" rel="stylesheet">
     <link href="assets/css/icons.css" rel="stylesheet">
-    <script src="https://code.iconify.design/2/2.2.1/iconify.min.js"></script>
+    <style>
+        .reply {
+            background-color: #fff;
+            padding: 100px;
+            color: #000;
+            margin-top: 50px;
+            border-radius: 30px;
+            box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+            ;
+        }
 
-    <title>EssentiaLyfe | Admin | Newsletter</title>
+        .form-control {
+            color: #000 !important;
+        }
+
+        .form-control ::-webkit-input-placeholder {
+            /* Edge */
+            color: #000  !important;
+        }
+
+        .form-control :-ms-input-placeholder {
+            /* Internet Explorer 10-11 */
+            color: #000 !important;
+        }
+
+        .form-control ::placeholder {
+            color: #000 !important;
+        }
+    </style>
+
+    <title>EssentiaLyfe | Admin</title>
 </head>
 
 <body class="bg-theme bg-theme1">
     <!--wrapper-->
     <div class="wrapper">
         <!--sidebar wrapper -->
-        	<?php 
-            include('./sidebar.php')
-            ?>
-        <!--end sidebar wrapper -->
+        <?php
+        include('./sidebar.php')
+        ?>
         <!--start header -->
         <header>
             <div class="topbar d-flex align-items-center">
@@ -132,7 +152,7 @@ if(isset($_GET['del'])){
                         <a class="d-flex align-items-center nav-link dropdown-toggle dropdown-toggle-nocaret" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <img src="assets/images/avatars/avatar-2.png" class="user-img" alt="user avatar">
                             <div class="user-info ps-3">
-                                <p class="user-name mb-0"><?php print_r($_SESSION['username']['username'])?></p>
+                                <p class="user-name mb-0"><?php print_r($_SESSION['username']['username']) ?></p>
                                 <p class="designattion mb-0">All Previligious</p>
                             </div>
                         </a>
@@ -150,47 +170,32 @@ if(isset($_GET['del'])){
             <div class="page-content">
                 <div class="container">
                     <div class="row">
-                       <div class="col">
-                           <caption>
-                               <h2 class="text-center">Newsletter Details</h2>
-                           </caption >
-                           <div class="row">
-                               <div class="col mt-5">
-                               <table class="table table-dark">
-                                    <thead class="text-uppercase">
-                                        <tr class="text-center">
-                                                <th>id</th>
-                                                <th>Email</th>
-                                                <th>Date</th>
-                                                <th>reply</th>
-                                                <th>Delete</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                    <tbody class="text-center">
-                                        <?php
-                                        $query = "SELECT * FROM  `newsletter`";
-                                        $result = mysqli_query($conn, $query);
-                                        $x = 1;
-                                        while ($res = mysqli_fetch_assoc($result)) {
-                                        ?>
-                                                     <td><?php echo $x; ?></td>
-                                                    <td><?php echo $res['email'] ?></td>
-                                                    <td><?php echo $res['date'] ?></td>
-                                                    <td><a href="reply_newsletter.php?reply=<?php echo $res['id']?>"><i class="fa-solid fa-reply"></i></a></td>
-                                                    <td><a href="newsletter.php?del=<?php echo $res['id'] ?>" class=""><i class="fas fa-trash-alt"></i></a></td>
-                                                
-                                            </tr>
-                                        <?php
-                                            $x++;
-                                        };
-                                        ?>
-                                    </tbody>
-                                    </tbody>
-                               </table>
-                               </div>
-                           </div>
-                       </div>
+                        <div class="col">
+                            <h1 class="text-center">Reply Newsletter</h1>
+                        </div>
+                    </div>
+                </div>
+                <div class="container reply">
+                    <div class="row">
+                        <div class="col">
+                            <form enctype="multipart/form-data" method="POST">
+                                <div class="form-group ">
+                                    <label for="email">Email</label>
+                                    <input type="email" name="email" id="email" value="<?php echo $row['email'] ?>" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label for="subject">Subject</label>
+                                    <input type="text" name="subject" id="subject" placeholder="type subject for email" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label for="content">Content</label>
+                                    <textarea name="content" id="content" cols="30" rows="10" class="form-control"></textarea>
+                                </div>
+                                <div class="form-group mt-3">
+                                    <button class="btn btn-primary" name="submit">send Email</button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -248,7 +253,9 @@ if(isset($_GET['del'])){
     <!-- Bootstrap JS -->
     <script src="assets/js/bootstrap.bundle.min.js"></script>
     <!--plugins-->
+    <script src="./ckeditor/ckeditor.js"></script>
     <script src="assets/js/jquery.min.js"></script>
+    <script src="https://cdn.ckeditor.com/ckeditor5/34.0.0/classic/ckeditor.js"></script>
     <script src="assets/plugins/simplebar/js/simplebar.min.js"></script>
     <script src="assets/plugins/metismenu/js/metisMenu.min.js"></script>
     <script src="assets/plugins/perfect-scrollbar/js/perfect-scrollbar.js"></script>
@@ -263,6 +270,8 @@ if(isset($_GET['del'])){
         $(function() {
             $(".knob").knob();
         });
+
+        CKEDITOR.replace('content');
     </script>
     <script src="assets/js/index.js"></script>
     <!--app JS-->
